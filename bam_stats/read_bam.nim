@@ -1,7 +1,8 @@
 import algorithm
 import hts
 import os
-
+import math
+import stats
 
 # open a bam/cram and look for the index.
 let file_name = paramStr(1)
@@ -17,6 +18,9 @@ var i=0
 var reads=1000000
 var insert_size: seq[int64]
 
+var insert_size_stats: RunningStat
+
+
 for record in b:
 
   if record.flag.dup:
@@ -28,14 +32,22 @@ for record in b:
   elif record.flag.unmapped:
      continue
 
+
   if record.mapping_quality > mapq and record.flag.pair and not record.flag.mate_unmapped and not (record.mate_pos < record.start or record.chrom != record.mate_chrom):
     i+=1
     #echo record.chrom , " " , record.start, " " , record.stop
     insert_size.add(record.mate_pos - record.start)
+    insert_size_stats.push( int(record.mate_pos - record.start) )
 
     if i > reads:
       break
 
 sort(insert_size, system.cmp)
-echo insert_size[ int64(i/2)-1]
-echo insert_size[ i-int64(i/99)-1]
+
+
+echo "Insert size median: ", insert_size[ int64(i/2)-1]
+echo "Insert size 99.5 percentile: ", insert_size[ i-int64(i/995)-1]
+
+
+echo "Insert size mean: ", insert_size_stats.mean()
+echo "Insert size std: ", insert_size_stats.standardDeviation()

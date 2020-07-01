@@ -5,8 +5,11 @@ nim
 nim-hts
 
 install:
+
 install nim-hits tps://github.com/brentp/hts-nim
+
 compile the code:
+
 nim c read_bam.nim
 
 run:
