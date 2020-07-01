@@ -27,3 +27,5 @@ LC_ALL=C.UTF-8
     conda config --add channels bioconda
     conda config --add channels r
     conda install -c conda-forge nim htslib -y
+    cd /opt/ && git clone https://github.com/brentp/hts-nim.git && cd hts-nim && nimble install -y
+    
