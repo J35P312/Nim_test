@@ -11,12 +11,12 @@ open(b, file_name)
 
 let
  mapq=10'u
- max_size=100000'u
  innie=0
 
 var i=0
-var reads=1000000
+var reads=10000000
 var insert_size: seq[int64]
+var max_size= int64(100000)
 
 var insert_size_stats: RunningStat
 
@@ -34,6 +34,8 @@ for record in b:
 
 
   if record.mapping_quality > mapq and record.flag.pair and not record.flag.mate_unmapped and not (record.mate_pos < record.start or record.chrom != record.mate_chrom):
+    if record.mate_pos - record.start > max_size:
+      continue
     i+=1
     #echo record.chrom , " " , record.start, " " , record.stop
     insert_size.add(record.mate_pos - record.start)
