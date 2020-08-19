@@ -5,7 +5,7 @@ import math
 import stats
 
 
-proc bam_stats(file_name: string): int =
+proc bam_stats(file_name: string, reads: int): (int64,int64,string,float) =
   var b:Bam
   open(b, file_name)
 
@@ -17,7 +17,6 @@ proc bam_stats(file_name: string): int =
 
   var i=0
   var max_size = 100000
-  var reads=50000000
   #var reads=500000
 
   var insert_size: seq[int64]
@@ -64,7 +63,7 @@ proc bam_stats(file_name: string): int =
       break
 
   sort(insert_size, system.cmp)
-
+  
   echo "sampled read-pairs:", pairs
   echo "Insert size median: ", insert_size[ int64(analysed_pairs/2)-1]
   echo "Insert size 99.9 percentile: ", insert_size[ analysed_pairs-int64(analysed_pairs/999)-1]
@@ -73,21 +72,29 @@ proc bam_stats(file_name: string): int =
   echo ""
   echo "Pair orientation --> <--: " , innie
   echo "Pair orientation <-- -->: " , outtie
+
+  var library_type = "SE"  
   if innie > uint64(0) or outtie > uint64(0):
     if innie > outtie:
       echo "major orientation: --> <--"
+      library_type="innie"
     else:
       echo "major orientation: <-- -->"
+      library_type="outtie"
+
   else:
     echo "Single-end"
 
+  let avg_read_length=read_length_stats.mean()
+
   echo ""
   echo "sampled reads:", i
-  echo "average read length:", read_length_stats.mean()
+  echo "average read length:", avg_read_length
   echo "read length standard deviation:", read_length_stats.standardDeviation()
   echo "========================="
+  return (insert_size[ int64(analysed_pairs/2)-1], insert_size[ analysed_pairs-int64(analysed_pairs/999)-1],library_type,avg_read_length)
 
 export bam_stats
 
-var slask: int
-slask= bam_stats(paramStr(1))
+#var slask: int
+#let (median_ins,ins_treshold,library_type,avg_read_length)= bam_stats(paramStr(1),50000000)
