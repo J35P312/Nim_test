@@ -1,23 +1,14 @@
 import algorithm
 import hts
-import os
-import math
 import stats
 
-
-proc bam_stats(file_name: string, reads: int): (int64,int64,string,float) =
+proc bam_stats(file_name: string, reads: int,mapq: uint8): (int64,int64,string,float) =
   var b:Bam
   open(b, file_name)
 
-  let
-    mapq=10'u
-
-
   var analysed_pairs=0
-
   var i=0
   var max_size = 100000
-  #var reads=500000
 
   var insert_size: seq[int64]
   var innie = uint64(0)
@@ -27,7 +18,6 @@ proc bam_stats(file_name: string, reads: int): (int64,int64,string,float) =
 
   var insert_size_stats: RunningStat
   var read_length_stats: RunningStat
-
 
   for record in b:
 
@@ -95,6 +85,3 @@ proc bam_stats(file_name: string, reads: int): (int64,int64,string,float) =
   return (insert_size[ int64(analysed_pairs/2)-1], insert_size[ analysed_pairs-int64(analysed_pairs/999)-1],library_type,avg_read_length)
 
 export bam_stats
-
-#var slask: int
-#let (median_ins,ins_treshold,library_type,avg_read_length)= bam_stats(paramStr(1),50000000)
